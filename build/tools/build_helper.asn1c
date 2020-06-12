@@ -60,6 +60,7 @@ install_asn1c_from_source(){
     echo_fatal "$OS_DISTRO is not a supported distribution."
   fi
   $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+  ret=$?;[[ $ret -ne 0 ]] && return $ret
 
   if [[ $prompt =~ [yY](es)* ]]
   then
