@@ -277,7 +277,7 @@ test_install_package() {
 
 #-------------------------------------------------------------------------------
 update_package_db() {
-  if [ $IS_CONTAINER -eq 0 ]
+  if [ $IS_CONTAINER -eq 0 ]; then
     if [ ! -f /tmp/no_more_update_package_db ]; then
       $SUDO $INSTALLER update
       [[ $? -ne 0 ]] && return $?
