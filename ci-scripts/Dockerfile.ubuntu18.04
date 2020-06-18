@@ -40,9 +40,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get upgrade --yes && DEBIAN_FRONTEND=noninteractive apt-get install --yes \
+    apt-utils \
     psmisc \
-    git \
-  && rm -rf /var/lib/apt/lists/*
+    git
 
 # Some GIT configuration command quite useful
 RUN /bin/bash -c "if [[ -v EURECOM_PROXY ]]; then git config --global http.proxy $EURECOM_PROXY; fi"
@@ -60,9 +60,7 @@ RUN /bin/bash -c "if [[ -v BUILD_FOR_CI ]]; then git merge --ff origin/$CI_DEST_
 # Installing and Building MME
 WORKDIR /openair-mme/scripts
 RUN ./build_mme --check-installed-software --force
-RUN ./build_mme --clean --build-type Release
-# The MME build does not show warnings/errors
-RUN /bin/bash -c "if [[ -v BUILD_FOR_CI ]]; then cat /openair-mme/build/log/mme.txt; fi"
+RUN ./build_mme --clean --build-type Release --Verbose
 
 #---------------------------------------------------------------------
 # TARGET IMAGE

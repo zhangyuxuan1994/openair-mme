@@ -529,7 +529,7 @@ class HtmlReport():
 		if os.path.isfile(cwd + '/archives/' + logFileName):
 			status = False
 			section_start_pattern = 'build_mme --clean --build-type Release'
-			section_end_pattern = 'cat /openair-mme/build/log/mme'
+			section_end_pattern = 'FROM ubuntu:bionic as oai-mme$'
 			section_status = False
 			with open(cwd + '/archives/' + logFileName, 'r') as logfile:
 				for line in logfile:
@@ -540,7 +540,7 @@ class HtmlReport():
 					if result is not None:
 						section_status = False
 					if section_status:
-						result = re.search('mmme installed', line)
+						result = re.search('mme installed', line)
 						if result is not None:
 							status = True
 				logfile.close()
@@ -571,7 +571,7 @@ class HtmlReport():
 		nb_warnings = 0
 
 		if os.path.isfile(cwd + '/archives/' + logFileName):
-			section_start_pattern = 'cat /openair-mme/build/log/mme'
+			section_start_pattern = 'build_mme --clean --build-type Release'
 			section_end_pattern = 'FROM ubuntu:bionic as oai-mme$'
 			section_status = False
 			with open(cwd + '/archives/' + logFileName, 'r') as logfile:
