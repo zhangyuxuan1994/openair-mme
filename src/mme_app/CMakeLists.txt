@@ -43,7 +43,6 @@ include_directories("${SRC_TOP_DIR}/s10")
 add_library(MME_APP
     mme_app_capabilities.c
     mme_app_apn_selection.c
-    mme_app_authentication.c
     mme_app_bearer.c
     mme_app_bearer_context.c
     mme_app_capabilities.c
@@ -60,6 +59,7 @@ add_library(MME_APP
     mme_app_statistics.c
     mme_app_transport.c
     mme_app_ue_context.c
+    mme_app_session_context.c
     mme_app_wrr_selection.c
     mme_config.c
     )
@@ -81,7 +81,7 @@ add_executable(mme
 
 target_link_libraries (mme
     -Wl,--start-group
-    LIB_NAS_MME S1AP_LIB S1AP_EPC S11_MME S10 GTPV2C SCTP_SERVER UDP_SERVER SECU_CN  S6A MME_APP
+    LIB_NAS_MME S1AP_LIB S1AP_EPC S11_MME S10 GTPV2C SCTP_SERVER UDP_SERVER SECU_CN S6A MME_APP
             ${MSC_LIB} ITTI  3GPP_TYPES CN_UTILS
             HASHTABLE BSTR
     -Wl,--end-group

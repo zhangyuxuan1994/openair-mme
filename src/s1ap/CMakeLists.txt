@@ -1,5 +1,5 @@
 add_list1_option(S1AP_VERSION R10 "S1AP Asn.1 grammar version" R8 R9 R10)
-add_definitions(-DASN1_MINIMUM_VERSION=924)
+add_definitions(-DASN1_MINIMUM_VERSION=923)
 
 # Common headers
 include_directories("${SRC_TOP_DIR}/common")
@@ -81,11 +81,8 @@ add_library(S1AP_LIB
     s1ap_common.c
     )
 
-if(${MOBILITY_REPO})
-  include_directories ("${MOBILITY_REPO_SRC}/src/s1ap/")
-  add_library(S1AP_EPC
-    ${S1AP_C_DIR}/s1ap_ies_defs.h
-    ${MOBILITY_REPO_SRC}/src/s1ap/s1ap_mobility_handover_signaling_handler.c
+
+add_library(S1AP_EPC
     ${S1AP_DIR}/s1ap_mme_encoder.c
     ${S1AP_DIR}/s1ap_mme_decoder.c
     ${S1AP_DIR}/s1ap_mme_handlers.c
@@ -95,16 +92,3 @@ if(${MOBILITY_REPO})
     ${S1AP_DIR}/s1ap_mme_retransmission.c
     ${S1AP_DIR}/s1ap_mme_ta.c
     )
-else (${MOBILITY_REPO})
-  add_library(S1AP_EPC
-    ${S1AP_C_DIR}/s1ap_ies_defs.h
-    ${S1AP_DIR}/s1ap_mme_encoder.c
-    ${S1AP_DIR}/s1ap_mme_decoder.c
-    ${S1AP_DIR}/s1ap_mme_handlers.c
-    ${S1AP_DIR}/s1ap_mme_nas_procedures.c
-    ${S1AP_DIR}/s1ap_mme.c
-    ${S1AP_DIR}/s1ap_mme_itti_messaging.c
-    ${S1AP_DIR}/s1ap_mme_retransmission.c
-    ${S1AP_DIR}/s1ap_mme_ta.c
-    )
-endif ()

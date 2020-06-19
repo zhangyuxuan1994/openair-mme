@@ -19,7 +19,6 @@
  *      contact@openairinterface.org
  */
 
-
 #ifndef FILE_MME_APP_EDNS_EMULATION_SEEN
 #define FILE_MME_APP_EDNS_EMULATION_SEEN
 
@@ -30,16 +29,22 @@
   \email: lionel.gauthier@eurecom.fr
 */
 
-//struct in_addr* mme_app_edns_get_sgw_entry(bstring id);
-//struct in_addr* mme_app_edns_get_mme_entry(bstring id);
-//int mme_app_edns_add_sgw_entry(bstring id, struct in_addr in_addr);
-//int mme_app_edns_add_mme_entry(bstring id, struct in_addr in_addr);
+#include "3gpp_29.274.h"
+#include "mme_config.h"
 
-struct in_addr* mme_app_edns_get_wrr_entry(bstring id, const interface_type_t interface_type);
-int mme_app_edns_add_wrr_entry(bstring id, struct in_addr in_addr, const interface_type_t interface_type);
+// struct in_addr* mme_app_edns_get_sgw_entry(bstring id);
+// struct in_addr* mme_app_edns_get_mme_entry(bstring id);
+// int mme_app_edns_add_sgw_entry(bstring id, struct in_addr in_addr);
+// int mme_app_edns_add_mme_entry(bstring id, struct in_addr in_addr);
 
-int  mme_app_edns_init (const mme_config_t * mme_config_p);
-void  mme_app_edns_exit (void);
+void mme_app_edns_get_wrr_entry(bstring id,
+                                const interface_type_t interface_type,
+                                struct sockaddr** sockaddr);
 
+int mme_app_edns_add_wrr_entry(bstring id, struct sockaddr* edns_ip_addr,
+                               const interface_type_t interface_type);
+
+int mme_app_edns_init(const mme_config_t* mme_config_p);
+void mme_app_edns_exit(void);
 
 #endif
