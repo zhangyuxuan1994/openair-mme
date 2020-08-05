@@ -31,10 +31,6 @@
 FROM ubuntu:bionic as oai-mme-builder
 
 ARG EURECOM_PROXY
-ARG BUILD_FOR_CI
-ARG CI_SRC_BRANCH
-ARG CI_SRC_COMMIT
-ARG CI_DEST_BRANCH
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe
@@ -48,19 +44,19 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get upgrade --yes && DE
 RUN /bin/bash -c "if [[ -v EURECOM_PROXY ]]; then git config --global http.proxy $EURECOM_PROXY; fi"
 RUN git config --global https.postBuffer 123289600
 RUN git config --global http.sslverify false
-# In normal case, we build out of the develop branch
-RUN /bin/bash -c "if [[ -v CI_SRC_BRANCH ]]; then git clone https://github.com/OPENAIRINTERFACE/openair-mme.git -b $CI_SRC_BRANCH /openair-mme; else git clone https://github.com/OPENAIRINTERFACE/openair-mme.git -b develop /openair-mme; fi"
-# For CI, especially for Pull/Merge Requests, we build out of temp merge
+
+# Copy source from local workspace
 WORKDIR /openair-mme
-RUN /bin/bash -c "if [[ -v BUILD_FOR_CI ]]; then git config --global user.name \"OAI CI\"; fi"
-RUN /bin/bash -c "if [[ -v BUILD_FOR_CI ]]; then git config --global user.email ci@openairinterface.org; fi"
-RUN /bin/bash -c "if [[ -v BUILD_FOR_CI ]]; then git checkout -f $CI_SRC_COMMIT; fi"
-RUN /bin/bash -c "if [[ -v BUILD_FOR_CI ]]; then git merge --ff origin/$CI_DEST_BRANCH -m \"Temporary merge for CI\"; fi"
+COPY ./ /openair-mme
 
 # Installing and Building MME
 WORKDIR /openair-mme/scripts
 RUN ./build_mme --check-installed-software --force
 RUN ./build_mme --clean --build-type Release --Verbose
+
+# Getting SHA-ONE for support
+WORKDIR /openair-mme
+RUN git log -n1 > version.txt
 
 #---------------------------------------------------------------------
 # TARGET IMAGE
@@ -105,3 +101,7 @@ RUN sed -i -e "s@echo_error@echo@" -e "s@echo_success@echo@" -e "s@echo_warning@
 
 WORKDIR /openair-mme
 RUN openssl rand -out /root/.rnd 128
+COPY --from=oai-mme-builder /openair-mme/version.txt .
+
+# expose ports
+EXPOSE 3870/tcp 5870/tcp 2123/udp
