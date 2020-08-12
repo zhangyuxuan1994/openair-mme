@@ -346,6 +346,7 @@ install_latest_freediameter_from_source() {
 #-------------------------------------------------------------------------------
 # arg1 is force (no interactive script)
 install_opencoord.org_freediameter() {
+  echo_info "Installing OpenCoord.org FreeDiameter version"
   if [ $1 -eq 0 ]; then
     read -p "Do you want to install opencoord freeDiameter ? <y/N> " prompt
     OPTION=""
@@ -356,13 +357,16 @@ install_opencoord.org_freediameter() {
 
   case "$(get_distribution_release)" in
     "ubuntu18.04")
-      specific_packages="build-essential cmake-curses-gui g++ libgcrypt-dev libidn11-dev libmysqlclient-dev libpq-dev libsctp1 libsctp-dev libxml2-dev python-dev ssl-cert"
+      specific_packages="build-essential cmake-curses-gui g++ libgcrypt-dev libidn11-dev libmysqlclient-dev libpq-dev libsctp1 libsctp-dev libxml2-dev python-dev ssl-cert debhelper"
     ;;
     "centos7")
-      specific_packages="build-essential cmake-curses-gui g++ libgcrypt-dev libidn11-dev libmysqlclient-dev libpq-dev libsctp1 libsctp-dev libxml2-dev python-dev ssl-cert"
+      specific_packages="build-essential cmake-curses-gui g++ libgcrypt-dev libidn11-dev libmysqlclient-dev libpq-dev libsctp1 libsctp-dev libxml2-dev python-dev ssl-cert debhelper"
     ;;
     "centos8")
-      specific_packages="gcc-c++ patch libgcrypt-devel libidn-devel libpq-devel lksctp-tools lksctp-tools-devel libxml2-devel python2-devel"
+      specific_packages="gcc-c++ patch libgcrypt-devel libidn-devel libpq-devel lksctp-tools lksctp-tools-devel libxml2-devel python2-devel debhelper"
+    ;;
+    "rhel8.2")
+      specific_packages="cmake3 gcc-c++ patch libgcrypt-devel libidn-devel libpq-devel lksctp-tools lksctp-tools-devel libxml2-devel python2-devel"
     ;;
   esac
 
@@ -373,7 +377,7 @@ install_opencoord.org_freediameter() {
     automake  \
     bison     \
     cmake \
-    debhelper \
+    make \
     flex  \
     gcc \
     gdb \
@@ -383,11 +387,12 @@ install_opencoord.org_freediameter() {
   if [[ $prompt =~ [yY](es)* ]]
   then
     cd $OPENAIRCN_DIR
-    echo "git submodule init"
+    echo_info "git submodule init"
+    echo_info "OPENAIRCN_DIR    = $OPENAIRCN_DIR"
     git submodule init
     ret=$?;[[ $ret -ne 0 ]] && return $ret
     # We are now looping to make sure CI is passing
-    echo "git submodule update"
+    echo_info "git submodule update"
     local cnt="0"
     while [ $cnt -lt 3 ]
     do
@@ -401,9 +406,9 @@ install_opencoord.org_freediameter() {
         fi
     done
     [[ $ret -ne 0 ]] && return $ret
-    echo "pushd $OPENAIRCN_DIR/build/git_submodules/freeDiameter"
+    echo_info "pushd $OPENAIRCN_DIR/build/git_submodules/freeDiameter"
     pushd $OPENAIRCN_DIR/build/git_submodules/freeDiameter
-    echo "git pull origin master"
+    echo_info "git pull origin master"
     cnt="0"
     while [ $cnt -lt 3 ]
     do
@@ -416,20 +421,30 @@ install_opencoord.org_freediameter() {
             cnt=10
         fi
     done
+    git checkout -f 13d9601bf947af3286764506368fc3d04672bfde
+    git log -n1
     [[ $ret -ne 0 ]] && return $ret
+    echo_info "Applying Patch"
     if ! patch -R -p1 -s -f --dry-run <  $OPENAIRCN_DIR/build/patches/0001-opencoord.org.freeDiameter.patch; then
           patch -p1 <  $OPENAIRCN_DIR/build/patches/0001-opencoord.org.freeDiameter.patch
     else
       echo_info "Detected freeDiameter $OPENAIRCN_DIR/build/patches/0001-opencoord.org.freeDiameter.patch alredy applied"
     fi
     ret=$?;[[ $ret -ne 0 ]] && return $ret
+    echo_info "Patch Applied"
 
     rm -rf build
     mkdir -p build
     cd build
+    echo_info "Doing cmake"
     $CMAKE ..
     res=$?
+    if [[ $res -ne 0 ]]; then
+      echo_info "Debugging cmake output"
+      cat /openair-mme/build/git_submodules/freeDiameter/build/CMakeFiles/CMakeOutput.log
+    fi
     [[ $res -ne 0 ]] && popd && return $res
+    echo_info "Enable SCTP"
     awk '{if (/^DISABLE_SCTP/) gsub(/OFF/, "ON"); print}' CMakeCache.txt > tmp && mv tmp CMakeCache.txt
     make $JNPROC
     res=$?

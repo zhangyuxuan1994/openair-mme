@@ -51,7 +51,12 @@ RUN rm /etc/rhsm-host && \
        diffutils \
        file \
        psmisc \
-       git
+       git && \
+    echo "/usr/local/lib" > /etc/ld.so.conf.d/local-lib.conf
+
+# Currently hard-coded
+# To be passed as env variable
+RUN git config --global http.proxy http://proxy.eurecom.fr:8080
 
 # Copy the workspace as is
 WORKDIR /openair-mme
@@ -64,44 +69,22 @@ WORKDIR /openair-mme/scripts
 RUN ./build_mme --check-installed-software --force
 RUN ./build_mme --clean --build-type Release --Verbose
 
-# Getting SHA-ONE for support
-WORKDIR /openair-mme
-RUN git log -n1 > version.txt
-
 #---------------------------------------------------------------------
 # TARGET IMAGE
 #---------------------------------------------------------------------
 FROM registry.access.redhat.com/ubi8/ubi:latest as oai-mme
 
-# Same thing about entitlements and rhsm
-RUN rm -Rf /etc/rhsm/ca /etc/pki/entitlement
-COPY ./etc-pki-entitlement /etc/pki/entitlement
-COPY ./rhsm-conf /etc/rhsm
-COPY ./rhsm-ca /etc/rhsm/ca
-
 # We install some debug tools for the moment in addition of mandatory libraries
-RUN rm /etc/rhsm-host && \
-    # Initialize /etc/yum.repos.d/redhat.repo
-    # See https://access.redhat.com/solutions/1443553
-    yum repolist --disablerepo=* && \
-    subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms && \
-    yum update -y && \
-    yum -y install --enablerepo="codeready-builder-for-rhel-8-x86_64-rpms" \
-       psmisc \
-       openssl \
-       net-tools \
-       bc \
-       tcpdump \
+RUN yum update -y && \
+    yum -y install --enablerepo="ubi-8-codeready-builder" \
        lksctp-tools \
-       nettle \
-       gnutls \
-       libconfig \
        libidn \
-    yum clean all -y &&\
-    rm -rf /var/cache/yum &&\
-    # Remove entitlements and Subscription Manager configs
-    rm -rf /etc/pki/entitlement && \
-    rm -rf /etc/rhsm
+       openssl \
+       psmisc \
+       net-tools && \
+    echo "/usr/local/lib" > /etc/ld.so.conf.d/local-lib.conf && \
+    yum clean all -y && \
+    rm -rf /var/cache/yum
 
 # Copying executable and generated libraries
 WORKDIR /openair-mme/bin
@@ -111,6 +94,7 @@ COPY --from=oai-mme-builder /openair-mme/scripts/entrypoint.sh .
 COPY --from=oai-mme-builder /usr/local/lib/libfd* /usr/local/lib/
 COPY --from=oai-mme-builder /usr/local/lib/freeDiameter/* /usr/local/lib/freeDiameter/
 COPY --from=oai-mme-builder /usr/local/lib/liblfds* /usr/local/lib/
+COPY --from=oai-mme-builder /lib64/libconfig.so.9 /lib64
 RUN ldconfig
 
 # Copying template configuration files
@@ -129,7 +113,6 @@ RUN sed -i -e "s@echo_error@echo@" -e "s@echo_success@echo@" -e "s@echo_warning@
 
 WORKDIR /openair-mme
 RUN openssl rand -out /root/.rnd 128
-COPY --from=oai-mme-builder /openair-mme/version.txt .
 
 # expose ports
 EXPOSE 3870/tcp 5870/tcp 2123/udp
