@@ -80,6 +80,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get upgrade --yes && DE
 # Copying executable and generated libraries
 WORKDIR /openair-mme/bin
 COPY --from=oai-mme-builder /openair-mme/build/mme/build/mme oai_mme
+COPY --from=oai-mme-builder /openair-mme/scripts/entrypoint.sh .
 
 COPY --from=oai-mme-builder /usr/local/lib/libfd* /usr/local/lib/
 COPY --from=oai-mme-builder /usr/local/lib/freeDiameter/* /usr/local/lib/freeDiameter/
@@ -105,3 +106,6 @@ COPY --from=oai-mme-builder /openair-mme/version.txt .
 
 # expose ports
 EXPOSE 3870/tcp 5870/tcp 2123/udp
+
+CMD ["/openair-mme/bin/oai_mme", "-c", "/openair-mme/etc/mme.conf"]
+ENTRYPOINT ["/openair-mme/bin/entrypoint.sh"]
