@@ -54,9 +54,8 @@ RUN rm /etc/rhsm-host && \
        git && \
     echo "/usr/local/lib" > /etc/ld.so.conf.d/local-lib.conf
 
-# Currently hard-coded
-# To be passed as env variable
-RUN git config --global http.proxy http://proxy.eurecom.fr:8080
+# In some network environments, GIT proxy is required
+RUN /bin/bash -c "if [[ -v NEEDED_GIT_PROXY ]]; then git config --global http.proxy $NEEDED_GIT_PROXY; fi"
 
 # Copy the workspace as is
 WORKDIR /openair-mme

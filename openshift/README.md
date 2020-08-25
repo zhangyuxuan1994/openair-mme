@@ -29,6 +29,12 @@ oc apply -f openshift/oai-mme-image-stream.yml
 oc apply -f openshift/oai-mme-build-config.yml
 ```
 
+In the case of Eurecom ".18" sub-network, we need to give the address for the GIT proxy:
+
+```bash
+oc set env bc/oai-mme-build-config NEEDED_GIT_PROXY=http://proxy.eurecom.fr:8080
+```
+
 Note that this step has to be done once before the first build and if you modify the yaml files.
 
 Then anytime you want to build:
