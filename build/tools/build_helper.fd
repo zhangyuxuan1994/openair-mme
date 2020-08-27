@@ -421,8 +421,6 @@ install_opencoord.org_freediameter() {
             cnt=10
         fi
     done
-    git checkout -f 13d9601bf947af3286764506368fc3d04672bfde
-    git log -n1
     [[ $ret -ne 0 ]] && return $ret
     echo_info "Applying Patch"
     if ! patch -R -p1 -s -f --dry-run <  $OPENAIRCN_DIR/build/patches/0001-opencoord.org.freeDiameter.patch; then

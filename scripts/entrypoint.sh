@@ -2,6 +2,34 @@
 
 set -euo pipefail
 
+# First see if all interfaces are up
+ifconfig
+
+# S10 might be on loopback --> needs bring-up
+if [[ "$MME_INTERFACE_NAME_FOR_S10" == *"lo:"* ]]
+then
+    ifconfig ${MME_INTERFACE_NAME_FOR_S10} ${MME_IPV4_ADDRESS_FOR_S10} up
+fi
+
+LIST_OF_NETWORKS=`ifconfig -s | egrep -v "^Iface|^lo" | cut -d' ' -f1`
+
+for if_name in $LIST_OF_NETWORKS
+do
+    IF_IP_ADDR=`ifconfig $if_name | grep inet | sed -e "s# *inet#inet#" | cut -d' ' -f2`
+    if [[ "${IF_IP_ADDR}" == "${MME_IPV4_ADDRESS_FOR_S1_MME}" ]]; then
+        echo "S1C is on $if_name"
+	MME_INTERFACE_NAME_FOR_S1_MME=$if_name
+    fi
+    if [[ "${IF_IP_ADDR}" == "${MME_IPV4_ADDRESS_FOR_S10}" ]]; then
+        echo "S10 is on $if_name"
+	MME_INTERFACE_NAME_FOR_S10=$if_name
+    fi
+    if [[ "${IF_IP_ADDR}" == "${MME_IPV4_ADDRESS_FOR_S11}" ]]; then
+        echo "S11 is on $if_name"
+	MME_INTERFACE_NAME_FOR_S11=$if_name
+    fi
+done
+
 CONFIG_DIR="/openair-mme/etc"
 
 for c in ${CONFIG_DIR}/*.conf; do
@@ -33,8 +61,6 @@ for c in ${CONFIG_DIR}/*.conf; do
     # render template and inline replace config file
     sed -i "${EXPRESSIONS}" ${c}
 done
-
-ifconfig ${MME_INTERFACE_NAME_FOR_S10} ${MME_IPV4_ADDRESS_FOR_S10} up
 
 pushd /openair-mme/scripts
 ./check_mme_s6a_certificate ${PREFIX} mme.${REALM}
