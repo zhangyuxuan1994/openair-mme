@@ -33,9 +33,11 @@ done
 CONFIG_DIR="/openair-mme/etc"
 
 for c in ${CONFIG_DIR}/*.conf; do
+    echo "entrypoint.sh process config file $c"
     sed -i -e "s#@TAC-LB#@TAC_LB#" -e "s#TAC-HB_#TAC_HB_#" ${c}
     # grep variable names (format: ${VAR}) from template to be rendered
     VARS=$(grep -oP '@[a-zA-Z0-9_]+@' ${c} | sort | uniq | xargs)
+    echo "entrypoint.sh process vars $VARS"
 
     # create sed expressions for substituting each occurrence of ${VAR}
     # with the value of the environment variable "VAR"
