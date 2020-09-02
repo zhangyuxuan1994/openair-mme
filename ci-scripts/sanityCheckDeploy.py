@@ -92,7 +92,8 @@ class deploySanityCheckTest():
                 time.sleep(1)
                 pass
         subprocess_run_w_echo('docker exec -it ci-cassandra /bin/bash -c "nodetool status" | tee archives/cassandra_status.log')
-        subprocess_run_w_echo('docker cp src/hss_rel14/db/oai_db.cql ci-cassandra:/home')
+        subprocess_run_w_echo('wget --quiet https://raw.githubusercontent.com/OPENAIRINTERFACE/openair-hss/develop/src/hss_rel14/db/oai_db.cql')
+        subprocess_run_w_echo('docker cp oai_db.cql ci-cassandra:/home')
         time.sleep(2)
         doLoop = True
         while doLoop:
