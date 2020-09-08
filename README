@@ -12,24 +12,20 @@
 #---------------------
 Licence info  
 #---------------------
-  The source code is mainly written under the Apache V2.0 License (http://www.apache.org/licenses/LICENSE-2.0). 
-  The text for Apache V2.0 License is also available under LICENSE file in the same directory.
-  For more details on third party software, please read the NOTICE file in the same directory.
+
+ The source code is mainly written under the [3-Clause BSD License](https://opensource.org/licenses/BSD-3-Clause)
    
 #---------------------
 Linux
 #---------------------
   The Openair-cn code actually is written, executed, and tested on UBUNTU desktop xenial, bionic soon.
-  The S-GW network element requires a linux kernel version 3.19 (for tag <= v0.3.2), tested on UBUNTU desktop 14.04 64 bits.
-  The S-GW network element requires a linux kernel version >= 4.7.x (for tag >= v0.4.0, and up to commits 2018-07-17), tested on UBUNTU desktop 16.04 64 bits.
-  The S-GW network element requires a linux kernel version = 4.9.x (for tag >= v0.4.0, and after commits 2018-07-17), tested on UBUNTU desktop 16.04 64 bits (xenial).
   
   
 #---------------------
 Collaborative work
 #---------------------
   This source code is managed through a GITHUB, a collaborative development 
-  platform, URL: https://github.com/OPENAIRINTERFACE/openair-cn
+  platform, URL: https://github.com/OPENAIRINTERFACE/openair-mme
 
 
 #---------------------
@@ -39,11 +35,6 @@ Contributions request
   code in any network component. Contributions can be simple bugfixes, advices
   and remarks on the design, architecture, coding/implementation, are can can 
   size up to a project collaboration.
-
-  - We are working to upgrade to Rel14 (done by Sprint for HSS), help is needed for other Network Functions.
-  - Would be good to have Cisco VPP+GTPU integrated with SPGW.
-  - Integrate and fill Sprint release of PCEF, PCRF.
-  - Improve SPGW code quality (would go also for C++ for SPGW higher layers, ITTI, and utils).
 
 #---------------------
 How to contribute
