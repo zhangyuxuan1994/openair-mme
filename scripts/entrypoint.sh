@@ -67,7 +67,7 @@ for c in ${CONFIG_DIR}/*.conf; do
 done
 
 pushd /openair-mme/scripts
-./check_mme_s6a_certificate ${PREFIX} mme.${REALM}
+./check_mme_s6a_certificate ${PREFIX} ${MME_FQDN}
 popd
 
 exec "$@"
