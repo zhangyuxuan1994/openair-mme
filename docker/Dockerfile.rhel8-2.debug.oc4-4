@@ -81,7 +81,7 @@ RUN yum update -y && \
        openssl \
        psmisc \
        gdb \
-       valgring \
+       valgrind \
        net-tools && \
     echo "/usr/local/lib" > /etc/ld.so.conf.d/local-lib.conf && \
     yum clean all -y && \
