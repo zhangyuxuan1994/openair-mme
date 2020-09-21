@@ -49,8 +49,6 @@ RUN rm /etc/rhsm-host && \
     yum -y install --enablerepo="codeready-builder-for-rhel-8-x86_64-rpms" \
        # diff, cmp and file are not in the ubi???
        diffutils \
-       devtoolset-8-perftools \
-       devtoolset-8-toolchain \
        file \
        psmisc \
        git && \
@@ -82,8 +80,7 @@ RUN yum update -y && \
        libidn \
        openssl \
        psmisc \
-       gdb \
-       valgrind \
+       devtoolset-8-perftools \
        net-tools && \
     echo "/usr/local/lib" > /etc/ld.so.conf.d/local-lib.conf && \
     yum clean all -y && \
