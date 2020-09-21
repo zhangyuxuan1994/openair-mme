@@ -80,7 +80,7 @@ RUN yum update -y && \
        libidn \
        openssl \
        psmisc \
-       devtoolset-8-perftools \
+       devtoolset-8 \
        net-tools && \
     echo "/usr/local/lib" > /etc/ld.so.conf.d/local-lib.conf && \
     yum clean all -y && \
