@@ -99,7 +99,7 @@ COPY --from=oai-mme-builder /usr/local/lib/liblfds* /usr/local/lib/
 # The configuration folder will be flat
 WORKDIR /openair-mme/etc
 COPY --from=oai-mme-builder /openair-mme/etc/mme.conf .
-RUN sed -i -e 's#freeDiameter##' mme.conf
+RUN sed -i -e 's#freeDiameter/##' mme.conf
 COPY --from=oai-mme-builder /openair-mme/etc/mme_fd.sprint.conf mme_fd.conf
 RUN sed -i -e "s#@PREFIX@/freeDiameter#@PREFIX@#g" mme_fd.conf
 
