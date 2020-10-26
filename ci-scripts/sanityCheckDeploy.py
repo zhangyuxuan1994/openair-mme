@@ -136,6 +136,8 @@ class deploySanityCheckTest():
             subprocess_run_w_echo('python3 ci-scripts/generateHssConfigFiles.py --kind=HSS --cassandra=' + CI_CASS_IP_ADDR + ' --hss_s6a=' + CI_HSS_S6A_ADDR + ' --from_docker_file')
             subprocess_run_w_echo('docker cp ./hss-cfg.sh ci-oai-hss:/openair-hss/scripts')
             subprocess_run_w_echo('docker exec -it ci-oai-hss /bin/bash -c "cd /openair-hss/scripts && chmod 777 hss-cfg.sh && ./hss-cfg.sh" > archives/hss_config.log')
+            # Starting it now
+            subprocess_run_w_echo('docker exec -d ci-oai-hss /bin/bash -c "nohup ./bin/oai_hss -j ./etc/hss_rel14.json --reloadkey true > hss_check_run.log 2>&1"')
 
     def deployMME(self):
         res = ''
@@ -193,7 +195,7 @@ class deploySanityCheckTest():
         if entrypoint is not None:
             print('there is an entrypoint')
         else:
-            subprocess_run_w_echo('docker exec -d ci-oai-hss /bin/bash -c "nohup ./bin/oai_hss -j ./etc/hss_rel14.json --reloadkey true > hss_check_run.log 2>&1"')
+            print('Already done')
 
     def startMME(self):
         res = ''

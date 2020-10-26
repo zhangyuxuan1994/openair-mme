@@ -17,14 +17,14 @@
 #---------------------------------------------------------------------
 #
 # Dockerfile for the Open-Air-Interface MME service
-#   Valid for CentOS 7
+#   Valid for CentOS 8
 #
 #---------------------------------------------------------------------
 
 #---------------------------------------------------------------------
 # BUILDER IMAGE
 #---------------------------------------------------------------------
-FROM centos:7 as oai-mme-builder
+FROM centos:8 as oai-mme-builder
 
 ARG EURECOM_PROXY
 ARG BUILD_FOR_CI
@@ -33,10 +33,10 @@ ARG CI_SRC_COMMIT
 ARG CI_DEST_BRANCH
 
 RUN yum update -y \
-  && yum install centos-release-scl -y \
-  && yum-config-manager --enable rhel-server-rhscl-7-rpms -y \
+  && yum install epel-release -y \
+  && yum install dnf-plugins-core -y \
+  && yum config-manager --set-enabled PowerTools \
   && yum install -y \
-    devtoolset-7 \
     psmisc \
     git
 
@@ -54,15 +54,22 @@ RUN /bin/bash -c "if [[ -v BUILD_FOR_CI ]]; then git checkout -f $CI_SRC_COMMIT;
 RUN /bin/bash -c "if [[ -v BUILD_FOR_CI ]]; then git merge --ff origin/$CI_DEST_BRANCH -m \"Temporary merge for CI\"; fi"
 
 # Installing and Building MME
-RUN scl enable devtoolset-7 'cd /openair-mme/scripts && ./build_mme --check-installed-software --force'
-RUN scl enable devtoolset-7 'cd /openair-mme/scripts && ./build_mme --clean --build-type Release --Verbose'
+WORKDIR /openair-mme
+RUN sed -i -e "s@python@python2@" ./build/CMakeLists.txt
+WORKDIR /openair-mme/scripts
+RUN ./build_mme --check-installed-software --force
+RUN ./build_mme --clean --build-type Release --Verbose
 
 #---------------------------------------------------------------------
 # TARGET IMAGE
 #---------------------------------------------------------------------
-FROM centos:7 as oai-mme
+FROM centos:8 as oai-mme
 # We install some debug tools for the moment in addition of mandatory libraries
-RUN yum update -y && yum install -y \
+RUN yum update -y  \
+  && yum install epel-release -y \
+  && yum install dnf-plugins-core -y \
+  && yum config-manager --set-enabled PowerTools \
+  && yum install -y \
     psmisc \
     openssl \
     net-tools \
@@ -88,7 +95,7 @@ COPY --from=oai-mme-builder /usr/local/lib/liblfds* /usr/local/lib/
 # The configuration folder will be flat
 WORKDIR /openair-mme/etc
 COPY --from=oai-mme-builder /openair-mme/etc/mme.conf .
-RUN sed -i -e 's#freeDiameter##' mme.conf
+RUN sed -i -e 's#freeDiameter/##' mme.conf
 COPY --from=oai-mme-builder /openair-mme/etc/mme_fd.sprint.conf mme_fd.conf
 RUN sed -i -e "s#@PREFIX@/freeDiameter#@PREFIX@#g" mme_fd.conf
 

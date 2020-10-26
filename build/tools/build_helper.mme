@@ -60,6 +60,7 @@ check_install_mme_software() {
       build-essential \
       check \
       cmake \
+      make \
       doxygen \
       flex \
       gdb \
@@ -79,6 +80,7 @@ check_install_mme_software() {
       bison \
       check \
       $CMAKE \
+      make \
       doxygen \
       flex \
       gdb \

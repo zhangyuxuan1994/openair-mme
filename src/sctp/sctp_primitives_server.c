@@ -366,9 +366,16 @@ static int sctp_create_new_listener(SctpInit *init_p) {
       return -1;
     }
 
-    memset((void *)&event, 1, sizeof(struct sctp_event_subscribe));
+    event.sctp_data_io_event = 1;
+    event.sctp_association_event = 1;
+    event.sctp_address_event = 1;
+    event.sctp_send_failure_event = 1;
+    event.sctp_peer_error_event = 1;
+    event.sctp_shutdown_event = 1;
+    event.sctp_partial_delivery_event = 1;
+    // https://forums.centos.org/viewtopic.php?t=12941
     if (setsockopt(sd, IPPROTO_SCTP, SCTP_EVENTS, &event,
-                   sizeof(struct sctp_event_subscribe)) < 0) {
+                   8) < 0) {
       OAILOG_ERROR(LOG_SCTP, "setsockopt: %s:%d\n", strerror(errno), errno);
       return -1;
     }

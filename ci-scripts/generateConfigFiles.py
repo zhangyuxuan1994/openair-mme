@@ -40,6 +40,7 @@ class mmeConfigGen():
 		self.tac_list = "600 601 602"
 		self.realm = 'openairinterface.org'
 		self.fromDockerFile = False
+		self.envForEntrypoint = False
 
 	def GenerateMMEConfigurer(self):
 		mmeFile = open('./mme-cfg.sh', 'w')
@@ -165,6 +166,71 @@ class mmeConfigGen():
 			mmeFile.write('./check_mme_s6a_certificate $PREFIX/freeDiameter mme.${MME_CONF[@REALM@]}\n')
 		mmeFile.close()
 
+	def GenerateMMEEnvList(self):
+		mmeFile = open('./mme-env.list', 'w')
+		mmeFile.write('# Environment Variables used by the OAI-MME Entrypoint Script\n')
+		mmeFile.write('REALM=' + self.realm + '\n')
+		mmeFile.write('PREFIX=/openair-mme/etc\n')
+		mmeFile.write('INSTANCE=1\n')
+		mmeFile.write('PID_DIRECTORY=/var/run\n')
+		mmeFile.write('\n')
+		mmeFile.write('HSS_IP_ADDR=' + self.hss_s6a_IP + '\n')
+		mmeFile.write('HSS_HOSTNAME=hss\n')
+		mmeFile.write('HSS_FQDN=hss.' + self.realm + '\n')
+		mmeFile.write('\n')
+		mmeFile.write('MCC=' + self.mcc + '\n')
+		mmeFile.write('MNC=' + self.mnc + '\n')
+		mmeFile.write('MME_GID=' + self.mme_gid + '\n')
+		mmeFile.write('MME_CODE=' + self.mme_code + '\n')
+		tacs = self.tac_list.split();
+		if len(tacs) < 3:
+			i = len(tacs)
+			base_tac = int(tacs[i - 1]) + 1
+			while (i < 3):
+				tacs.append(str(base_tac))
+				base_tac += 1
+				i += 1
+		i = 0
+		while i < 3:
+			mmeFile.write('TAC_' + str(i) + '=' + str(tacs[i]) + '\n')
+			i += 1
+		mmeFile.write('\n')
+		mmeFile.write('MME_FQDN=mme.' + self.realm + '\n')
+		mmeFile.write('MME_S6A_IP_ADDR=' + self.mme_s6a_IP + '\n')
+		mmeFile.write('MME_INTERFACE_NAME_FOR_S1_MME=' + self.mme_s1c_name + '\n')
+		mmeFile.write('MME_IPV4_ADDRESS_FOR_S1_MME=' + self.mme_s1c_IP + '\n')
+		mmeFile.write('MME_INTERFACE_NAME_FOR_S11=' + self.mme_s11_name + '\n')
+		mmeFile.write('MME_IPV4_ADDRESS_FOR_S11=' + self.mme_s11_IP + '\n')
+		mmeFile.write('MME_INTERFACE_NAME_FOR_S10=' + self.mme_s10_name + '\n')
+		mmeFile.write('MME_IPV4_ADDRESS_FOR_S10=' + self.mme_s10_IP + '\n')
+		mmeFile.write('\n')
+		mmeFile.write('OUTPUT=CONSOLE\n')
+		mmeFile.write('\n')
+		mmeFile.write('SGW_IPV4_ADDRESS_FOR_S11_0=' + self.spgwc0_s11_IP + '\n')
+		mmeFile.write('PEER_MME_IPV4_ADDRESS_FOR_S10_0=0.0.0.0\n')
+		mmeFile.write('PEER_MME_IPV4_ADDRESS_FOR_S10_1=0.0.0.0\n')
+		mmeFile.write('\n')
+		mmeFile.write('MCC_SGW_0=' + self.mcc + '\n')
+		mmeFile.write('MNC3_SGW_0=%03d\n' % int(self.mnc))
+		mmeFile.write('TAC_LB_SGW_0=%02X\n' % int(int(tacs[0]) % 256))
+		mmeFile.write('TAC_HB_SGW_0=%02X\n' % int(int(tacs[0]) / 256))
+		mmeFile.write('\n')
+		mmeFile.write('MCC_MME_0=' + self.mcc + '\n')
+		mmeFile.write('MNC3_MME_0=%03d\n' % int(self.mnc))
+		mmeFile.write('TAC_LB_MME_0=%02X\n' % int(int(tacs[1]) % 256))
+		mmeFile.write('TAC_HB_MME_0=%02X\n' % int(int(tacs[1]) / 256))
+		mmeFile.write('\n')
+		mmeFile.write('MCC_MME_1=' + self.mcc + '\n')
+		mmeFile.write('MNC3_MME_1=%03d\n' % int(self.mnc))
+		mmeFile.write('TAC_LB_MME_1=%02X\n' % int(int(tacs[2]) % 256))
+		mmeFile.write('TAC_HB_MME_1=%02X\n' % int(int(tacs[2]) / 256))
+		mmeFile.write('\n')
+		mmeFile.write('TAC_LB_SGW_TEST_0=%02X\n' % int(int(tacs[2]) % 256))
+		mmeFile.write('TAC_HB_SGW_TEST_0=%02X\n' % int(int(tacs[2]) / 256))
+		mmeFile.write('\n')
+		mmeFile.write('SGW_IPV4_ADDRESS_FOR_S11_TEST_0=0.0.0.0\n')
+		mmeFile.close()
+
 #-----------------------------------------------------------
 # Usage()
 #-----------------------------------------------------------
@@ -195,6 +261,7 @@ def Usage():
 	print('  --tac_list=["TACs for managed TAIs"]')
 	print('  --realm=["REALM"]')
 	print('  --from_docker_file')
+	print('  --envForEntrypoint	[generates a mme-env.list interpreted by the entrypoint]')
 
 argvs = sys.argv
 argc = len(argvs)
@@ -257,6 +324,8 @@ while len(argvs) > 1:
 		myMME.realm = matchReg.group(1)
 	elif re.match('^\-\-from_docker_file', myArgv, re.IGNORECASE):
 		myMME.fromDockerFile = True
+	elif re.match('^\-\-env_for_entrypoint', myArgv, re.IGNORECASE):
+		myMME.envForEntrypoint = True
 	else:
 		Usage()
 		sys.exit('Invalid Parameter: ' + myArgv)
@@ -294,7 +363,10 @@ if myMME.kind == 'MME':
 		Usage()
 		sys.exit('missing SPGW-C0 IP address')
 	else:
-		myMME.GenerateMMEConfigurer()
+		if myMME.envForEntrypoint:
+			myMME.GenerateMMEEnvList()
+		else:
+			myMME.GenerateMMEConfigurer()
 		sys.exit(0)
 else:
 	Usage()
