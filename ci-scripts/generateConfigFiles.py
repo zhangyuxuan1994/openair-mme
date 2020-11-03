@@ -19,20 +19,20 @@
 import os
 import re
 import sys
-#import ipaddress
+import ipaddress
 
 class mmeConfigGen():
 	def __init__(self):
 		self.kind = ''
-		self.hss_s6a_IP = ''
-		self.mme_s6a_IP = ''
-		self.mme_s1c_IP = ''
+		self.hss_s6a_IP = ipaddress.ip_address('0.0.0.0')
+		self.mme_s6a_IP = ipaddress.ip_address('0.0.0.0')
+		self.mme_s1c_IP = ipaddress.ip_address('0.0.0.0')
 		self.mme_s1c_name = ''
-		self.mme_s10_IP = ''
+		self.mme_s10_IP = ipaddress.ip_address('0.0.0.0')
 		self.mme_s10_name = ''
-		self.mme_s11_IP = ''
+		self.mme_s11_IP = ipaddress.ip_address('0.0.0.0')
 		self.mme_s11_name = ''
-		self.spgwc0_s11_IP = ''
+		self.spgwc0_s11_IP = ipaddress.ip_address('0.0.0.0')
 		self.mme_gid = '32768'
 		self.mme_code = '3'
 		self.mcc = '208'
@@ -83,7 +83,7 @@ class mmeConfigGen():
 			mmeFile.write('\n')
 		mmeFile.write('declare -A MME_CONF\n')
 		mmeFile.write('\n')
-		mmeFile.write('MME_CONF[@MME_S6A_IP_ADDR@]="' + self.mme_s6a_IP + '"\n')
+		mmeFile.write('MME_CONF[@MME_S6A_IP_ADDR@]="' + str(self.mme_s6a_IP) + '"\n')
 		mmeFile.write('MME_CONF[@INSTANCE@]=$INSTANCE\n')
 		mmeFile.write('MME_CONF[@PREFIX@]=$PREFIX\n')
 		mmeFile.write('MME_CONF[@REALM@]=$MY_REALM\n')
@@ -91,7 +91,7 @@ class mmeConfigGen():
 		mmeFile.write('MME_CONF[@MME_FQDN@]="mme.${MME_CONF[@REALM@]}"\n')
 		mmeFile.write('MME_CONF[@HSS_HOSTNAME@]=\'hss\'\n')
 		mmeFile.write('MME_CONF[@HSS_FQDN@]="${MME_CONF[@HSS_HOSTNAME@]}.${MME_CONF[@REALM@]}"\n')
-		mmeFile.write('MME_CONF[@HSS_IP_ADDR@]="' + self.hss_s6a_IP + '"\n')
+		mmeFile.write('MME_CONF[@HSS_IP_ADDR@]="' + str(self.hss_s6a_IP) + '"\n')
 		mmeFile.write('MME_CONF[@MCC@]=\'' + self.mcc + '\'\n')
 		mmeFile.write('MME_CONF[@MNC@]=\'' + self.mnc + '\'\n')
 		mmeFile.write('MME_CONF[@MME_GID@]=\'' + self.mme_gid + '\'\n')
@@ -110,17 +110,17 @@ class mmeConfigGen():
 			i += 1
 
 		mmeFile.write('MME_CONF[@MME_INTERFACE_NAME_FOR_S1_MME@]=\'' + self.mme_s1c_name + '\'\n')
-		mmeFile.write('MME_CONF[@MME_IPV4_ADDRESS_FOR_S1_MME@]=\'' + self.mme_s1c_IP + '/24\'\n')
+		mmeFile.write('MME_CONF[@MME_IPV4_ADDRESS_FOR_S1_MME@]=\'' + str(self.mme_s1c_IP) + '/24\'\n')
 		mmeFile.write('MME_CONF[@MME_INTERFACE_NAME_FOR_S11@]=\'' + self.mme_s11_name + '\'\n')
-		mmeFile.write('MME_CONF[@MME_IPV4_ADDRESS_FOR_S11@]=\'' + self.mme_s11_IP + '/24\'\n')
+		mmeFile.write('MME_CONF[@MME_IPV4_ADDRESS_FOR_S11@]=\'' + str(self.mme_s11_IP) + '/24\'\n')
 		if useLoopBackForS10:
 			mmeFile.write('MME_CONF[@MME_INTERFACE_NAME_FOR_S10@]=\'lo:s10\'\n')
 			mmeFile.write('MME_CONF[@MME_IPV4_ADDRESS_FOR_S10@]=\'127.0.0.10/24\'\n')
 		else:
 			mmeFile.write('MME_CONF[@MME_INTERFACE_NAME_FOR_S10@]=\'' + self.mme_s10_name + '\'\n')
-			mmeFile.write('MME_CONF[@MME_IPV4_ADDRESS_FOR_S10@]=\'' + self.mme_s10_IP + '/24\'\n')
+			mmeFile.write('MME_CONF[@MME_IPV4_ADDRESS_FOR_S10@]=\'' + str(self.mme_s10_IP) + '/24\'\n')
 		mmeFile.write('MME_CONF[@OUTPUT@]=\'CONSOLE\'\n')
-		mmeFile.write('MME_CONF[@SGW_IPV4_ADDRESS_FOR_S11_0@]=\'' + self.spgwc0_s11_IP + '\'\n')
+		mmeFile.write('MME_CONF[@SGW_IPV4_ADDRESS_FOR_S11_0@]=\'' + str(self.spgwc0_s11_IP) + '\'\n')
 		mmeFile.write('MME_CONF[@PEER_MME_IPV4_ADDRESS_FOR_S10_0@]=\'0.0.0.0/24\'\n')
 		mmeFile.write('MME_CONF[@PEER_MME_IPV4_ADDRESS_FOR_S10_1@]=\'0.0.0.0/24\'\n')
 		mmeFile.write('\n')
@@ -174,7 +174,7 @@ class mmeConfigGen():
 		mmeFile.write('INSTANCE=1\n')
 		mmeFile.write('PID_DIRECTORY=/var/run\n')
 		mmeFile.write('\n')
-		mmeFile.write('HSS_IP_ADDR=' + self.hss_s6a_IP + '\n')
+		mmeFile.write('HSS_IP_ADDR=' + str(self.hss_s6a_IP) + '\n')
 		mmeFile.write('HSS_HOSTNAME=hss\n')
 		mmeFile.write('HSS_FQDN=hss.' + self.realm + '\n')
 		mmeFile.write('\n')
@@ -196,17 +196,17 @@ class mmeConfigGen():
 			i += 1
 		mmeFile.write('\n')
 		mmeFile.write('MME_FQDN=mme.' + self.realm + '\n')
-		mmeFile.write('MME_S6A_IP_ADDR=' + self.mme_s6a_IP + '\n')
+		mmeFile.write('MME_S6A_IP_ADDR=' + str(self.mme_s6a_IP) + '\n')
 		mmeFile.write('MME_INTERFACE_NAME_FOR_S1_MME=' + self.mme_s1c_name + '\n')
-		mmeFile.write('MME_IPV4_ADDRESS_FOR_S1_MME=' + self.mme_s1c_IP + '\n')
+		mmeFile.write('MME_IPV4_ADDRESS_FOR_S1_MME=' + str(self.mme_s1c_IP) + '\n')
 		mmeFile.write('MME_INTERFACE_NAME_FOR_S11=' + self.mme_s11_name + '\n')
-		mmeFile.write('MME_IPV4_ADDRESS_FOR_S11=' + self.mme_s11_IP + '\n')
+		mmeFile.write('MME_IPV4_ADDRESS_FOR_S11=' + str(self.mme_s11_IP) + '\n')
 		mmeFile.write('MME_INTERFACE_NAME_FOR_S10=' + self.mme_s10_name + '\n')
-		mmeFile.write('MME_IPV4_ADDRESS_FOR_S10=' + self.mme_s10_IP + '\n')
+		mmeFile.write('MME_IPV4_ADDRESS_FOR_S10=' + str(self.mme_s10_IP) + '\n')
 		mmeFile.write('\n')
 		mmeFile.write('OUTPUT=CONSOLE\n')
 		mmeFile.write('\n')
-		mmeFile.write('SGW_IPV4_ADDRESS_FOR_S11_0=' + self.spgwc0_s11_IP + '\n')
+		mmeFile.write('SGW_IPV4_ADDRESS_FOR_S11_0=' + str(self.spgwc0_s11_IP) + '\n')
 		mmeFile.write('PEER_MME_IPV4_ADDRESS_FOR_S10_0=0.0.0.0\n')
 		mmeFile.write('PEER_MME_IPV4_ADDRESS_FOR_S10_1=0.0.0.0\n')
 		mmeFile.write('\n')
@@ -261,7 +261,7 @@ def Usage():
 	print('  --tac_list=["TACs for managed TAIs"]')
 	print('  --realm=["REALM"]')
 	print('  --from_docker_file')
-	print('  --envForEntrypoint	[generates a mme-env.list interpreted by the entrypoint]')
+	print('  --env_for_entrypoint	[generates a mme-env.list interpreted by the entrypoint]')
 
 argvs = sys.argv
 argc = len(argvs)
@@ -279,31 +279,31 @@ while len(argvs) > 1:
 		myMME.kind = matchReg.group(1)
 	elif re.match('^\-\-hss_s6a=(.+)$', myArgv, re.IGNORECASE):
 		matchReg = re.match('^\-\-hss_s6a=(.+)$', myArgv, re.IGNORECASE)
-		myMME.hss_s6a_IP = matchReg.group(1)
+		myMME.hss_s6a_IP = ipaddress.ip_address(matchReg.group(1))
 	elif re.match('^\-\-mme_s6a=(.+)$', myArgv, re.IGNORECASE):
 		matchReg = re.match('^\-\-mme_s6a=(.+)$', myArgv, re.IGNORECASE)
-		myMME.mme_s6a_IP = matchReg.group(1)
+		myMME.mme_s6a_IP = ipaddress.ip_address(matchReg.group(1))
 	elif re.match('^\-\-mme_s1c_IP=(.+)$', myArgv, re.IGNORECASE):
 		matchReg = re.match('^\-\-mme_s1c_IP=(.+)$', myArgv, re.IGNORECASE)
-		myMME.mme_s1c_IP = matchReg.group(1)
+		myMME.mme_s1c_IP = ipaddress.ip_address(matchReg.group(1))
 	elif re.match('^\-\-mme_s1c_name=(.+)$', myArgv, re.IGNORECASE):
 		matchReg = re.match('^\-\-mme_s1c_name=(.+)$', myArgv, re.IGNORECASE)
 		myMME.mme_s1c_name = matchReg.group(1)
 	elif re.match('^\-\-mme_s10_IP=(.+)$', myArgv, re.IGNORECASE):
 		matchReg = re.match('^\-\-mme_s10_IP=(.+)$', myArgv, re.IGNORECASE)
-		myMME.mme_s10_IP = matchReg.group(1)
+		myMME.mme_s10_IP = ipaddress.ip_address(matchReg.group(1))
 	elif re.match('^\-\-mme_s10_name=(.+)$', myArgv, re.IGNORECASE):
 		matchReg = re.match('^\-\-mme_s10_name=(.+)$', myArgv, re.IGNORECASE)
 		myMME.mme_s10_name = matchReg.group(1)
 	elif re.match('^\-\-mme_s11_IP=(.+)$', myArgv, re.IGNORECASE):
 		matchReg = re.match('^\-\-mme_s11_IP=(.+)$', myArgv, re.IGNORECASE)
-		myMME.mme_s11_IP = matchReg.group(1)
+		myMME.mme_s11_IP = ipaddress.ip_address(matchReg.group(1))
 	elif re.match('^\-\-mme_s11_name=(.+)$', myArgv, re.IGNORECASE):
 		matchReg = re.match('^\-\-mme_s11_name=(.+)$', myArgv, re.IGNORECASE)
 		myMME.mme_s11_name = matchReg.group(1)
 	elif re.match('^\-\-spgwc0_s11_IP=(.+)$', myArgv, re.IGNORECASE):
 		matchReg = re.match('^\-\-spgwc0_s11_IP=(.+)$', myArgv, re.IGNORECASE)
-		myMME.spgwc0_s11_IP = matchReg.group(1)
+		myMME.spgwc0_s11_IP = ipaddress.ip_address(matchReg.group(1))
 	elif re.match('^\-\-mme_gid=(.+)$', myArgv, re.IGNORECASE):
 		matchReg = re.match('^\-\-mme_gid=(.+)$', myArgv, re.IGNORECASE)
 		myMME.mme_gid = matchReg.group(1)
@@ -335,31 +335,31 @@ if myMME.kind == '':
 	sys.exit('missing kind parameter')
 
 if myMME.kind == 'MME':
-	if myMME.mme_s6a_IP == '':
+	if str(myMME.mme_s6a_IP) == '0.0.0.0':
 		Usage()
 		sys.exit('missing MME S6A IP address')
-	elif myMME.hss_s6a_IP == '':
+	elif str(myMME.hss_s6a_IP) == '0.0.0.0':
 		Usage()
 		sys.exit('missing HSS S6A IP address')
-	elif myMME.mme_s1c_IP == '':
+	elif str(myMME.mme_s1c_IP) == '0.0.0.0':
 		Usage()
 		sys.exit('missing MME S1-C IP address')
 	elif myMME.mme_s1c_name == '':
 		Usage()
 		sys.exit('missing MME S1-C Interface name')
-	elif myMME.mme_s10_IP == '':
+	elif str(myMME.mme_s10_IP) == '0.0.0.0':
 		Usage()
 		sys.exit('missing MME S10 IP address')
 	elif myMME.mme_s10_name == '':
 		Usage()
 		sys.exit('missing MME S10 Interface name')
-	elif myMME.mme_s11_IP == '':
+	elif str(myMME.mme_s11_IP) == '0.0.0.0':
 		Usage()
 		sys.exit('missing MME S11 IP address')
 	elif myMME.mme_s11_name == '':
 		Usage()
 		sys.exit('missing MME S11 Interface name')
-	elif myMME.spgwc0_s11_IP == '':
+	elif str(myMME.spgwc0_s11_IP) == '0.0.0.0':
 		Usage()
 		sys.exit('missing SPGW-C0 IP address')
 	else:
