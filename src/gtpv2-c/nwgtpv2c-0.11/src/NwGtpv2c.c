@@ -1461,8 +1461,11 @@ static nw_rc_t                            nwGtpv2cHandleTriggeredRsp (
 
     bool                                       noDelete = false ;
     keyTrxn.seqNum = ntohl (*((uint32_t *) (msgBuf + (((*msgBuf) & 0x08) ? 8 : 4)))) >> 8;;
-    keyTrxn.peerIp.s_addr = peerIp->s_addr;
-
+    //keyTrxn.peerIp.s_addr = peerIp->s_addr; //old
+    memcpy((void *)&keyTrxn.peer_ip, peerIp,
+         (peerIp->sa_family == AF_INET) ? sizeof(struct sockaddr_in)
+                                        : sizeof(struct sockaddr_in6));
+  
     OAILOG_DEBUG (LOG_GTPV2C,  "RECEIVED GTPV2c  response message of type %d, length %d and seqNum %x.\n", msgType, msgBufLen, keyTrxn.seqNum);
 
 
@@ -1506,7 +1509,8 @@ static nw_rc_t                            nwGtpv2cHandleTriggeredRsp (
         OAILOG_WARNING (LOG_GTPV2C,  "Malformed message received on TEID %u from peer %s. Notifying ULP.\n", ntohl ((*((uint32_t *) (msgBuf + 4)))), ipv4);
       }
 
-      rc = nwGtpv2cSendTriggeredRspIndToUlp (thiz, &error, keyTrxn.seqNum, trx_flags, localPort, peerPort, hUlpTunnel, msgType, noDelete, hMsg);
+      //rc = nwGtpv2cSendTriggeredRspIndToUlp (thiz, &error, keyTrxn.seqNum, trx_flags, localPort, peerPort, hUlpTunnel, msgType, noDelete, hMsg);//old
+      rc = nwGtpv2cSendTriggeredRspIndToUlp(thiz, &error, keyTrxn.seqNum, &trx_flags, localPort, peerPort, peerIp, hUlpTunnel, msgType, noDelete, hMsg);//new
     } else {
       OAILOG_WARNING (LOG_GTPV2C,  "Response message without a matching outstanding request received! Discarding.\n");
       rc = NW_OK;
