@@ -270,7 +270,7 @@ int shared_log_init(const int max_threadsP) {
     lfds710_stack_push(&g_shared_log.log_free_message_queue, &item_p->se);
   }
 
-  OAI_FPRINTF_INFO("Initializing shared logging Done\n");
+  OAI_FPRINTF_INFO("Initializing shared logging Done test !!\n");
 
   g_shared_log.running = true;
 
