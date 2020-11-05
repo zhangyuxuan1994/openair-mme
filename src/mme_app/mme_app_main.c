@@ -212,6 +212,21 @@ void *mme_app_thread(void *args) {
       } break;
 
       case S11_MODIFY_BEARER_RESPONSE: {
+        ue_context = mme_ue_context_exists_s11_teid (&mme_app_desc.mme_ue_contexts, received_message_p->ittiMsg.s11_modify_bearer_response.teid);
+
+        if (ue_context == NULL) {
+          MSC_LOG_RX_DISCARDED_MESSAGE (MSC_MMEAPP_MME, MSC_S11_MME, NULL, 0, "0 MODIFY_BEARER_RESPONSE local S11 teid " TEID_FMT " ",
+            received_message_p->ittiMsg.s11_modify_bearer_response.teid);
+          OAILOG_WARNING (LOG_MME_APP, "We didn't find this teid in list of UE: %08x\n", received_message_p->ittiMsg.s11_modify_bearer_response.teid);
+        } else {
+          MSC_LOG_RX_MESSAGE (MSC_MMEAPP_MME, MSC_S11_MME, NULL, 0, "0 MODIFY_BEARER_RESPONSE local S11 teid " TEID_FMT " IMSI " IMSI_64_FMT " ",
+            received_message_p->ittiMsg.s11_modify_bearer_response.teid, ue_context->imsi); //ue_context->emm_context._imsi64
+          /*
+           * Updating statistics
+           */
+          update_mme_app_stats_s1u_bearer_add();
+        }
+        /*
         struct ue_context_s *ue_context = NULL;
         ue_context = mme_ue_context_exists_s11_teid(
             &mme_app_desc.mme_ue_contexts,
@@ -237,7 +252,7 @@ void *mme_app_thread(void *args) {
           // todo unlock_ue_contexts(ue_context);
         }
         // TO DO
-
+        */
       } break;
 
       case S11_RELEASE_ACCESS_BEARERS_RESPONSE: {
