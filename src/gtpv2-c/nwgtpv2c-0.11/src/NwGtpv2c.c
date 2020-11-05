@@ -1451,7 +1451,7 @@ static nw_rc_t                            nwGtpv2cHandleTriggeredRsp (
   NW_IN uint32_t msgBufLen,
   NW_IN uint16_t localPort,
   NW_IN uint16_t peerPort,
-  NW_IN struct in_addr* peerIp,
+  NW_IN struct sockaddr *peerIp,
   NW_IN bool remove) {
     nw_rc_t                                   rc = NW_FAILURE;
     nw_gtpv2c_trxn_t                          *pTrxn = NULL,
